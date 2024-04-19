@@ -1,0 +1,82 @@
+import java.sql.*;
+
+public class GerenciamentoBancoDeDados {
+
+    // Configurações do banco de dados
+    static final String URL = "jdbc:mysql://localhost:3306/seu_banco_de_dados";
+    static final String USUARIO = "seu_usuario";
+    static final String SENHA = "sua_senha";
+
+    public static void main(String[] args) {
+        try {
+            // Estabelece a conexão com o banco de dados
+            Connection conexao = DriverManager.getConnection(URL, USUARIO, SENHA);
+
+            // Inserção de um novo registro
+            inserirRegistro(conexao, "João", "Desenvolvedor", 5000.00);
+
+            // Atualização de um registro
+            atualizarRegistro(conexao, 1, "Analista de Sistemas", 6000.00);
+
+            // Exclusão de um registro
+            excluirRegistro(conexao, 2);
+
+            // Consulta de todos os registros
+            consultarRegistros(conexao);
+
+            // Fecha a conexão com o banco de dados
+            conexao.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para inserir um novo registro
+    static void inserirRegistro(Connection conexao, String nome, String cargo, double salario) throws SQLException {
+        String sql = "INSERT INTO tabela (nome, cargo, salario) VALUES (?, ?, ?)";
+        PreparedStatement statement = conexao.prepareStatement(sql);
+        statement.setString(1, nome);
+        statement.setString(2, cargo);
+        statement.setDouble(3, salario);
+        statement.executeUpdate();
+        System.out.println("Registro inserido com sucesso.");
+    }
+
+    // Método para atualizar um registro
+    static void atualizarRegistro(Connection conexao, int id, String novoCargo, double novoSalario) throws SQLException {
+        String sql = "UPDATE tabela SET cargo = ?, salario = ? WHERE id = ?";
+        PreparedStatement statement = conexao.prepareStatement(sql);
+        statement.setString(1, novoCargo);
+        statement.setDouble(2, novoSalario);
+        statement.setInt(3, id);
+        statement.executeUpdate();
+        System.out.println("Registro atualizado com sucesso.");
+    }
+
+    // Método para excluir um registro
+    static void excluirRegistro(Connection conexao, int id) throws SQLException {
+        String sql = "DELETE FROM tabela WHERE id = ?";
+        PreparedStatement statement = conexao.prepareStatement(sql);
+        statement.setInt(1, id);
+        statement.executeUpdate();
+        System.out.println("Registro excluído com sucesso.");
+    }
+
+    // Método para consultar todos os registros
+    static void consultarRegistros(Connection conexao) throws SQLException {
+        String sql = "*SELECT* * FROM tabela";
+        Statement statement = conexao.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        // Itera sobre os resultados
+        while (resultSet.next()) {
+            int id = resultSet.getInt("id");
+            String nome = resultSet.getString("nome");
+            String cargo = resultSet.getString("cargo");
+            double salario = resultSet.getDouble("salario");
+            System.out.println("ID: " + id + ", Nome: " + nome + ", Cargo: " + cargo + ", Salário: " + salario);
+        }
+        resultSet.close();
+        statement.close();
+    }
+}
